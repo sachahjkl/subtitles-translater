@@ -1,10 +1,12 @@
+[English](README.md) | [Français](README.fr.md)
+
 # Subtitles Translater
 
-## Résumé
+## Summary
 
-Script NodeJS utilisant [DeepL](https://www.deepl.com/translator) pour traduire des fichiers de sous-titres au format `.srt` automatiquement.
+NodeJS script that uses [DeepL](https://www.deepl.com/translator) to translate `.srt` subtitle files automatically.
 
-## Usage 
+## Usage
 
 ```powershell
 USAGE : node index.js subtitlesFile.srt [sourceLang] [targetLang]
