@@ -142,6 +142,6 @@ dist
 .svelte-kit
 
 # Sub files
-.srt
+*.srt
 
 # End of https://www.toptal.com/developers/gitignore/api/node
