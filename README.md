@@ -6,7 +6,7 @@ Script NodeJS utilisant [DeepL](https://www.deepl.com/translator) pour traduire 
 
 ## Usage 
 
-```sh
+```powershell
 USAGE : node index.js subtitlesFile.srt [sourceLang] [targetLang]
 
 sourceLang : default value = "EN-US"
