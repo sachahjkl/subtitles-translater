@@ -1,7 +1,7 @@
 // import srtParser2 from 'srt-parser-2';
 import { parseSync, stringifySync } from "subtitle";
 import fs, { writeFileSync } from "fs";
-import { parse, format } from "path";
+import path, { parse, format } from "path";
 import fetch from "node-fetch";
 
 export async function translateText(
@@ -81,7 +81,7 @@ export async function translateFile(
 
   const translatedFileName = `${parsedFilePath.name}_${target_lang}${parsedFilePath.ext}`;
   writeFileSync(
-    translatedFileName,
+    path.join(parsedFilePath.dir, translatedFileName),
     stringifySync(translatedSubtitles, { format: "SRT" })
   );
   return translatedSubtitles;
