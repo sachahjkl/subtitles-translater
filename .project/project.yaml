@@ -1,0 +1,8 @@
+name: "subtitles-translater"
+description: "Script NodeJS utilisant DeepL pour traduire des fichiers de sous-titres au format .srt automatiquement."
+topics: []
+homepage: ""
+source:
+  provider: gitlab
+  namespace: "sachahjkl"
+  path: "sachahjkl/subtitles-translater"
