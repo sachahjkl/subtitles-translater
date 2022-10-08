@@ -1,9 +1,12 @@
 import dotenv from "dotenv";
 import { translateFile } from "./converter.js";
+import { basename } from "path";
 dotenv.config();
 
 const usage = `
-USAGE : node ${process.argv[1]} subtitlesFile.srt [sourceLang] [targetLang]
+USAGE : node ${basename(
+  process.argv[1]
+)} subtitlesFile.srt [sourceLang] [targetLang]
 
 sourceLang : default value = "EN-US"
 targetLang : default value = "FR"
