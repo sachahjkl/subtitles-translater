@@ -1,5 +1,3 @@
-[English](README.md) | [Français](README.fr.md)
-
 # Subtitles Translater
 
 ## Summary
