@@ -1,75 +1,91 @@
-import srtParser2 from 'srt-parser-2';
-import { readFileSync } from 'fs';
-import { parse } from 'path';
-import fetch from 'node-fetch';
+// import srtParser2 from 'srt-parser-2';
+import { parseSync, stringifySync } from "subtitle";
+import fs, { writeFileSync } from "fs";
+import { parse, format } from "path";
+import fetch from "node-fetch";
 
 export async function translateText(
-  text = '',
-  source_lang = 'EN-US',
-  target_lang = 'FR',
-  apiKey = ''
+  text = "",
+  source_lang = "EN-US",
+  target_lang = "FR",
+  apiKey = ""
 ) {
   if (!apiKey) {
     throw new Error("❌ Pas de clé d'API fournie !");
   }
   const endpoint =
-    process.env.DEEPL_API_ENDPOINT || 'https://api-free.deepl.com/v2/translate';
-  console.info(`traduction de "${text} de "${source_lang} à ${target_lang}"`);
+    process.env.DEEPL_API_ENDPOINT || "https://api-free.deepl.com/v2/translate";
+  console.info(
+    `⚒️ traduction de "${text}" de "${source_lang} à ${target_lang}"`
+  );
+  source_lang = source_lang.includes("EN") ? "EN" : source_lang;
   const res = await fetch(endpoint, {
-    headers: ['Authorization', `DeepL-Auth-Key ${apiKey}`],
-    body: new FormData()
-      .append('text', text)
-      .append('source_lang', source_lang)
-      .append('target_lang', target_lang),
+    method: "POST",
+    headers: {
+      Authorization: `DeepL-Auth-Key ${apiKey}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: new URLSearchParams({
+      text,
+      text,
+      target_lang,
+      source_lang,
+    }).toString(),
   });
-  const translatedText = res.text();
+  const translatedText = `${(await res.json()).translations[0].text}`;
+  console.info(`🗣️ texte traduit en :"${translatedText}"`);
 
-  return await translatedText;
+  return translatedText;
 }
 
 export async function translateFile(
-  filename = './subs.srt',
-  source_lang = 'EN-US',
-  target_lang = 'FR',
-  apiKey = ''
+  filename = "./subs.srt",
+  source_lang = "EN-US",
+  target_lang = "FR",
+  apiKey = ""
 ) {
   if (!apiKey) {
     throw new Error("❌ Pas de clé d'API fournie !");
   }
-  try {
-    const parsedFilePath = parse(filename);
+  // try {
+  const parsedFilePath = parse(filename);
+  const filePath = format(parsedFilePath);
 
-    console.info(`🎉 Fichier à traduire : "${parsedFilePath}"`);
+  console.info(`🎉 Fichier à traduire : "${filePath}"`);
 
-    var parser = new srtParser2();
-    const srt = readFileSync(parsedFilePath).toString();
-    var originalSubtitles = parser.fromSrt(srt);
-    console.log(result);
+  const srt = fs.readFileSync(filePath).toString();
+  const originalSubtitles = parseSync(srt);
 
-    console.info(`⚙️ On commence la traduction`);
-    const translatedSubtitles = originalSubtitles.map(async (sub) => {
-      const inlineText = sub.text.replace(/\n/g, '');
+  console.info(`⚠️ On commence la traduction`);
+  const translatedSubtitles = await Promise.all(
+    originalSubtitles.map(async (sub) => {
+      const inlineText = sub.data.text.replace(/\n/g, "");
 
       const translatedText = await translateText(
         inlineText,
         source_lang,
-        target_lang
+        target_lang,
+        apiKey
       );
-      console.info(`🗣️ texte traduit en :"${translatedText}"`);
       return {
         ...sub,
-        text: translatedText,
+        data: {
+          ...sub.data,
+          text: translatedText,
+        },
       };
-    });
+    })
+  );
 
-    console.info(`traduction terminée ✅ !`);
+  console.info(`✅ traduction terminée !`);
 
-    const translatedFileName = `${parsedFilePath.name}_${target_lang}.${parsedFilePath.ext}`;
-    parser.toSrt(translatedFileName, translatedSubtitles);
-    return translatedSubtitles;
-  } catch (error) {
-    throw new Error(
-      `Format du chemin vers le fichier de sous-titres incorrect: "${error.message}"`
-    );
-  }
+  const translatedFileName = `${parsedFilePath.name}_${target_lang}${parsedFilePath.ext}`;
+  writeFileSync(
+    translatedFileName,
+    stringifySync(translatedSubtitles, { format: "SRT" })
+  );
+  return translatedSubtitles;
+  // } catch (error) {
+  //   console.log(`Erreur: "${error.message}"`);
+  // }
 }
